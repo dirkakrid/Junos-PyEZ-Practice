@@ -17,11 +17,41 @@ def clearScreen():
 		system('cls')
 	elif platform.system() == "Linux":
 		system('clear')
+def listToDict(listName):
+        index = 0
+        newDict = {}
+        for i in listName:
+                newDict[index] = i
+                index += 1
+        return newDict
 def listPorts(device):
 	eths = EthPortTable(device).get()
-	pp(eths.keys())
-	raw_input("Press Enter to continue...")
+	#Generate a dictionary from list returned from EthPortTable
+	portDict = listToDict(eths.keys())
+	#pp(eths.keys())
+	pp(portDict)
+	raw_input("Press [Enter] to continue...")
 	clearScreen()
+def individualPort(device):
+    phyports = EthPortTable(device).get()
+    clearScreen()
+    ethPortDict = listToDict(phyports.keys())
+    pp(ethPortDict)
+    selection = int(raw_input("Select the index of the interface you would like to examine or press [Enter] to exit: "))
+    while selection != "":
+        port = ethPortDict[selection]
+        if type(selection) is int and selection < len(phyports):
+            print("Interface: " + port.key)
+            if ( port.description is not None ):
+                print(" Description:    "+ port.description)
+            print(" Status:         " + port.admin + "/" + port.oper)
+            print(" Flapped:        " + port.flapped)
+            selection = raw_input("Select the index of the interface you would like to examine or press [Enter] to exit: ")
+            clearScree()
+        elif selection == "":
+            break
+        else:
+            raw_input("Invalid entry. Please press [Enter] to continue.")
 def deviceMenu():
 	deviceOption = 1
 	device = raw_input("Please enter device hostname or IP address: ")
@@ -40,7 +70,7 @@ def deviceMenu():
 			#print("You chose 1")
 			clearScreen()
 			pp( dev.facts )
-			raw_input("Press Enter to continue...")
+			raw_input("Press [Enter] to continue...")
 		elif deviceOption == 2:
 			#print("You chose 2")
 			
@@ -54,7 +84,7 @@ def deviceMenu():
 					print(" Description:    "+ port.description)
 				print(" Status:         " + port.admin + "/" + port.oper)
 				print(" Flapped:        " + port.flapped)
-			raw_input("Press Enter to continue...")
+			raw_input("Press [Enter] to continue...")
 		elif deviceOption == 3:
 			print("You chose 3")
 			clearScreen()
@@ -67,7 +97,9 @@ def deviceMenu():
 			print(" Flapped:        " + port.flapped)
 			raw_input("Press Enter to continue...")
 			"""
-			listPorts(dev)
+			listToDict
+			#listPorts(dev)
+			individualPort(dev)
 			#eths = EthPortTable(dev).get()
 			#pp(eths.keys())
 			#raw_input("Press Enter to continue...")
