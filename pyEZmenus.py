@@ -33,7 +33,7 @@ def listPorts(device):
 	raw_input("Press [Enter] to continue...")
 	clearScreen()
 def individualPort(device):
-    phyports = EthPortTable(device).get()
+    phyports = PhyPortTable(device).get()
     clearScreen()
     ethPortDict = listToDict(phyports.keys())
     pp(ethPortDict)
@@ -52,11 +52,36 @@ def individualPort(device):
             break
         else:
             raw_input("Invalid entry. Please press [Enter] to continue.")
+def rebootDevice(dev):
+	from jnpr.junos.utils.sw import SW
+	import time
+	dev.bind(sw=SW)
+	probe = False
+	reboot = raw_input("Are you sure you would like to reboot? (y/n) :")
+	if reboot == "Y" or reboot == "y":
+		dev.sw.reboot(0)
+		time.sleep(90)
+		while probe != True:
+			probe = dev.probe(15)
+		print("Reboot complete.")
+	else:
+		clearScreen()
+def upgradeJunos(dev):
+	swPackage = raw_input("Please enter the filepath to the installer package: ")
+	from jnpr.junos.utils.sw import SW
+	dev.bind(sw=SW)
+	def myProgress(dev,msg):
+		print "{}:{}".format(dev.hostname, msg)
+	dev.sw.install(package=swPackage, progress=myProgress)
+	print("Install has completed.")
+	rebootDevice(dev)
+	dev.open()
+	print(dev.hostname + " has been upgraded to version " + dev.facts['version'])	 
 def deviceMenu():
 	deviceOption = 1
 	device = raw_input("Please enter device hostname or IP address: ")
 	clearScreen()
-	while deviceOption < 4:
+	while deviceOption < 7:
 		dev = Device(device,user=username,password=passwd)
 		dev.open()
 		print("DEVICE MENU\n\n")
@@ -64,7 +89,9 @@ def deviceMenu():
 		print(" 1) Get basic device statistics")
 		print(" 2) Get basic information on all interfaces")
 		print(" 3) Get basic information on a single interface")
-		print(" 4) Exit this device")
+		print(" 4) Upgrade this device")
+		print(" 5) Reboot this device")
+		print(" 6) Exit this device")
 		deviceOption = int(raw_input())
 		if deviceOption == 1:
 			#print("You chose 1")
@@ -79,6 +106,7 @@ def deviceMenu():
 			eths = EthPortTable(dev).get()
 			clearScreen()
 			for port in phyports:
+				print(type(port))
 				print("Interface: " + port.key)
 				if ( port.description is not None ):
 					print(" Description:    "+ port.description)
@@ -86,7 +114,7 @@ def deviceMenu():
 				print(" Flapped:        " + port.flapped)
 			raw_input("Press [Enter] to continue...")
 		elif deviceOption == 3:
-			print("You chose 3")
+			#print("You chose 3")
 			clearScreen()
 			"""
 			port = raw_input("Which port would you like to view?: ")
@@ -105,6 +133,10 @@ def deviceMenu():
 			#raw_input("Press Enter to continue...")
 			#clearScreen()
 		elif deviceOption == 4:
+			upgradeJunos(dev)
+		elif deviceOption == 5:
+			rebootDevice(dev)
+		elif deviceOption == 6:
 			dev.close()
 			clearScreen()
 		else:
