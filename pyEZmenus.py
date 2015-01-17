@@ -7,6 +7,7 @@ from getpass import getpass
 from pprint import pprint as pp
 from os import system
 import platform
+from jnpr.junos.utils.sw import SW
 
 #Prompt for username and password. This should be RADIUS info for the switch, router, firewall, etc.
 username = raw_input("Username: ")
@@ -53,12 +54,11 @@ def individualPort(device):
         else:
             raw_input("Invalid entry. Please press [Enter] to continue.")
 def rebootDevice(dev):
-	from jnpr.junos.utils.sw import SW
 	import time
-	dev.bind(sw=SW)
 	probe = False
-	reboot = raw_input("Are you sure you would like to reboot? (y/n) :")
+	reboot = raw_input("Are you sure you would like to reboot? Enter Y to continue. :")
 	if reboot == "Y" or reboot == "y":
+		print("Rebooting device.")
 		dev.sw.reboot(0)
 		time.sleep(90)
 		while probe != True:
@@ -68,8 +68,6 @@ def rebootDevice(dev):
 		clearScreen()
 def upgradeJunos(dev):
 	swPackage = raw_input("Please enter the filepath to the installer package: ")
-	from jnpr.junos.utils.sw import SW
-	dev.bind(sw=SW)
 	def myProgress(dev,msg):
 		print "{}:{}".format(dev.hostname, msg)
 	dev.sw.install(package=swPackage, progress=myProgress)
@@ -81,8 +79,9 @@ def deviceMenu():
 	deviceOption = 1
 	device = raw_input("Please enter device hostname or IP address: ")
 	clearScreen()
-	while deviceOption < 7:
+	while deviceOption < 6:
 		dev = Device(device,user=username,password=passwd)
+		dev.bind(sw=SW)
 		dev.open()
 		print("DEVICE MENU\n\n")
 		print("What would you like to do?")
