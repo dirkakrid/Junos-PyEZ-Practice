@@ -8,6 +8,7 @@ from pprint import pprint as pp
 from os import system
 import platform
 from jnpr.junos.utils.sw import SW
+from encodings import raw_unicode_escape
 
 #Prompt for username and password. This should be RADIUS info for the switch, router, firewall, etc.
 username = raw_input("Username: ")
@@ -38,21 +39,35 @@ def individualPort(device):
     clearScreen()
     ethPortDict = listToDict(phyports.keys())
     pp(ethPortDict)
-    selection = int(raw_input("Select the index of the interface you would like to examine or press [Enter] to exit: "))
+    selection = raw_input("Select the index of the interface you would like to examine or press [Enter] to exit: ")
     while selection != "":
-        port = ethPortDict[selection]
+        selection = int(selection)
+        port = selection
         if type(selection) is int and selection < len(phyports):
-            print("Interface: " + port.key)
-            if ( port.description is not None ):
-                print(" Description:    "+ port.description)
-            print(" Status:         " + port.admin + "/" + port.oper)
-            print(" Flapped:        " + port.flapped)
+            print("Interface: " + phyports[port].key)
+            if ( phyports[port].description is not None ):
+                print(" Description:    "+ phyports[port].description)
+            print(" Status:         " + phyports[port].admin + "/" + phyports[port].oper)
+            print(" Flapped:        " + phyports[port].flapped)
             selection = raw_input("Select the index of the interface you would like to examine or press [Enter] to exit: ")
-            clearScree()
-        elif selection == "":
+        elif type(selection) is None:
             break
         else:
             raw_input("Invalid entry. Please press [Enter] to continue.")
+	clearScreen()
+def viewInventory(dev):
+	#Pull info on all transceivers, then print location, type, and name of transceiver
+	from jnpr.junos.op.xcvr import XcvrTable
+	xcvrDB = XcvrTable(dev).get()
+	index = 0
+	clearScreen()
+	for item in xcvrDB:
+		print "/".join(xcvrDB.keys()[index])
+		print "	Type:	" + item.type
+		print " SN:		" + item.sn
+		index += 1
+	raw_input("Press [Enter] to continue...")
+	clearScreen()
 def rebootDevice(dev):
 	import time
 	probe = False
@@ -79,7 +94,7 @@ def deviceMenu():
 	deviceOption = 1
 	device = raw_input("Please enter device hostname or IP address: ")
 	clearScreen()
-	while deviceOption < 6:
+	while deviceOption < 7:
 		dev = Device(device,user=username,password=passwd)
 		dev.bind(sw=SW)
 		dev.open()
@@ -88,9 +103,10 @@ def deviceMenu():
 		print(" 1) Get basic device statistics")
 		print(" 2) Get basic information on all interfaces")
 		print(" 3) Get basic information on a single interface")
-		print(" 4) Upgrade this device")
-		print(" 5) Reboot this device")
-		print(" 6) Exit this device")
+		print(" 4) View device inventory")
+		print(" 5) Upgrade this device")
+		print(" 6) Reboot this device")
+		print(" 7) Exit this device")
 		deviceOption = int(raw_input())
 		if deviceOption == 1:
 			#print("You chose 1")
@@ -132,10 +148,12 @@ def deviceMenu():
 			#raw_input("Press Enter to continue...")
 			#clearScreen()
 		elif deviceOption == 4:
-			upgradeJunos(dev)
+			viewInventory(dev)
 		elif deviceOption == 5:
-			rebootDevice(dev)
+			upgradeJunos(dev)
 		elif deviceOption == 6:
+			rebootDevice(dev)
+		elif deviceOption == 7:
 			dev.close()
 			clearScreen()
 		else:
