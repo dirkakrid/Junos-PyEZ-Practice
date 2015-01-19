@@ -8,7 +8,6 @@ from pprint import pprint as pp
 from os import system
 import platform
 from jnpr.junos.utils.sw import SW
-from encodings import raw_unicode_escape
 
 #Prompt for username and password. This should be RADIUS info for the switch, router, firewall, etc.
 username = raw_input("Username: ")
