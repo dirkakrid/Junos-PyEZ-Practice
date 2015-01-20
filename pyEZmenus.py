@@ -33,8 +33,8 @@ def listPorts(device):
 	pp(portDict)
 	raw_input("Press [Enter] to continue...")
 	clearScreen()
-def individualPort(device):
-    phyports = PhyPortTable(device).get()
+def individualPort(dev):
+    phyports = PhyPortTable(dev).get()
     clearScreen()
     ethPortDict = listToDict(phyports.keys())
     pp(ethPortDict)
@@ -60,6 +60,8 @@ def viewInventory(dev):
 	xcvrDB = XcvrTable(dev).get()
 	index = 0
 	clearScreen()
+	print dev.facts['model'] + " Chassis"
+	print "	SN:	" + dev.facts['serialnumber']
 	for item in xcvrDB:
 		print "/".join(xcvrDB.keys()[index])
 		print "	Type:	" + item.type
