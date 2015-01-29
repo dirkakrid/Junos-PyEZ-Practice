@@ -37,7 +37,8 @@ def individualPort(dev):
     phyports = PhyPortTable(dev).get()
     clearScreen()
     ethPortDict = listToDict(phyports.keys())
-    pp(ethPortDict)
+    for item in ethPortDict:
+    	print(str(item) + ': ' + ethPortDict[item])
     selection = raw_input("Select the index of the interface you would like to examine or press [Enter] to exit: ")
     while selection != "":
         selection = int(selection)
