@@ -38,7 +38,7 @@ def individualPort(dev):
     clearScreen()
     ethPortDict = listToDict(phyports.keys())
     for item in ethPortDict:
-    	print(str(item) + ': ' + ethPortDict[item])
+    	print(str(item) + ": " + ethPortDict[item])
     selection = raw_input("Select the index of the interface you would like to examine or press [Enter] to exit: ")
     while selection != "":
         selection = int(selection)
@@ -91,7 +91,26 @@ def upgradeJunos(dev):
 	print("Install has completed.")
 	rebootDevice(dev)
 	dev.open()
-	print(dev.hostname + " has been upgraded to version " + dev.facts['version'])	 
+	print(dev.hostname + " has been upgraded to version " + dev.facts['version'])
+def displayFacts(dev):
+	for x in dev.facts:
+		if type(dev.facts[x]) is dict:
+			print str(x) + ':'
+			for y in dev.facts[x]:
+				if len(str(y)) < 6:
+					print "			" + str(y) + ": " + "			" + str(dev.facts[x][y])
+				elif len(str(y)) < 12:
+					print "			" + str(y) + ": " + "		" + str(dev.facts[x][y])
+				else:
+					print "			" + str(y) + ": " + "	" + str(dev.facts[x][y])
+			print ""
+		elif str(dev.facts[x]) == "None":
+			pass
+		else:
+			if len(str(x)) < 7:
+				print str(x) + ": 			" + str(dev.facts[x])
+			else:
+				print str(x) + ":		" + str(dev.facts[x])
 def deviceMenu():
 	deviceOption = 1
 	device = raw_input("Please enter device hostname or IP address: ")
@@ -113,7 +132,7 @@ def deviceMenu():
 		if deviceOption == 1:
 			#print("You chose 1")
 			clearScreen()
-			pp( dev.facts )
+			displayFacts(dev)
 			raw_input("Press [Enter] to continue...")
 		elif deviceOption == 2:
 			#print("You chose 2")
