@@ -130,14 +130,10 @@ def deviceMenu():
 		print(" 7) Exit this device")
 		deviceOption = int(raw_input())
 		if deviceOption == 1:
-			#print("You chose 1")
 			clearScreen()
-			#pp( dev.facts )
 			displayFacts(dev)
 			raw_input("Press [Enter] to continue...")
 		elif deviceOption == 2:
-			#print("You chose 2")
-			
 			#Print some physical port statistics
 			phyports = PhyPortTable(dev).get()
 			eths = EthPortTable(dev).get()
@@ -151,7 +147,6 @@ def deviceMenu():
 				print(" Flapped:        " + port.flapped)
 			raw_input("Press [Enter] to continue...")
 		elif deviceOption == 3:
-			#print("You chose 3")
 			clearScreen()
 			"""
 			port = raw_input("Which port would you like to view?: ")
