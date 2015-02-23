@@ -132,6 +132,7 @@ def deviceMenu():
 		if deviceOption == 1:
 			#print("You chose 1")
 			clearScreen()
+			#pp( dev.facts )
 			displayFacts(dev)
 			raw_input("Press [Enter] to continue...")
 		elif deviceOption == 2:
